@@ -33,82 +33,83 @@
     <!-- Log container -->
 
     <script type="module">
-      import QrScanner from "https://unpkg.com/qr-scanner/qr-scanner.min.js";
+            import QrScanner from "https://unpkg.com/qr-scanner/qr-scanner.min.js";
 
-      const videoElem = document.getElementById("qr-video");
-      const resultElem = document.getElementById("result");
-      const logContainer = document.getElementById("log-container");
+            const videoElem = document.getElementById("qr-video");
+            const resultElem = document.getElementById("result");
+            const logContainer = document.getElementById("log-container");
 
-      // Override console methods to log messages to the div
-      const originalLog = console.log;
-      const originalError = console.error;
+            // Override console methods to log messages to the div
+            const originalLog = console.log;
+            const originalError = console.error;
 
-      console.log = function (...args) {
-        originalLog.apply(console, args);
-        logContainer.innerHTML += `<p>${args.join(" ")}</p>`;
-      };
+            console.log = function (...args) {
+              originalLog.apply(console, args);
+              logContainer.innerHTML += `<p>${args.join(" ")}</p>`;
+            };
 
-      console.error = function (...args) {
-        originalError.apply(console, args);
-        logContainer.innerHTML += `<p style="color: red;">${args.join(" ")}</p>`;
-      };
+            console.error = function (...args) {
+              originalError.apply(console, args);
+              logContainer.innerHTML += `<p style="color: red;">${args.join(" ")}</p>`;
+            };
 
-      const qrScanner = new QrScanner(videoElem, (result) => {
-        resultElem.textContent = "QR Code scanned: " + result;
+            const qrScanner = new QrScanner(videoElem, (result) => {
+              resultElem.textContent = "QR Code scanned: " + result;
 
-        console.log("Scanned result:", result); // Log the entire scanned result
+              console.log("Scanned result:", result); // Log the entire scanned result
 
-        // Validate and extract email from the QR code response
-        const urlPattern = /^(https?:\/\/[^\s]+)/; // Regex to match URLs
-        const emailPattern = /[?&]email=([^&#]+)/; // Regex to match the email parameter
-        const urlMatch = result.match(urlPattern);
+              // Validate and extract email from the QR code response
+              const urlPattern = /^(https?:\/\/[^\s]+)/; // Regex to match URLs
+              const emailPattern = /[?&]email=([^&#]+)/; // Regex to match the email parameter
+              const urlMatch = result.match(urlPattern);
 
-        if (urlMatch) {
-          const url = urlMatch[0];
-          const emailMatch = url.match(emailPattern);
-          const email = emailMatch ? decodeURIComponent(emailMatch[1]) : null;
+              if (urlMatch) {
+                const url = urlMatch[0];
+                const emailMatch = url.match(emailPattern);
+                const email = emailMatch ? decodeURIComponent(emailMatch[1]) : null;
 
-          console.log("Extracted email:", email); // Log the extracted email
+                console.log("Extracted email:", email); // Log the extracted email
 
-          // Push the email to the webhook
-          if (email) {
-            pushToWebhook(email);
-          } else {
-            console.warn("No email found in QR code.");
-          }
-        } else {
-          console.error("Scanned result is not a valid URL:", result);
-        }
-      });
+                // Push the email to the webhook
+                if (email) {
+                  pushToWebhook(email);
+                } else {
+                  console.warn("No email found in QR code.");
+                }
+              } else {
+                console.error("Scanned result is not a valid URL:", result);
+              }
+            });
 
-      qrScanner.start();
+            qrScanner.start();
 
-      async function pushToWebhook(email) {
-        const webhookUrl = "https://hook.us1.make.com"; // Remove credentials from URL
+            async function pushToWebhook(email) {
+              const webhookUrl = "udy914hedcmo2pflks5pmjkj5ywfhd02@hook.us1.make.com
+      "; // Remove credentials from URL
 
-        console.log("Sending email to webhook:", email);
+              console.log("Sending email to webhook:", email);
 
-        try {
-          const response = await fetch(webhookUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email: email }), // Use email instead of log
-          });
+              try {
+                const response = await fetch(webhookUrl, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ email: email }), // Use email instead of log
+                });
 
-          if (!response.ok) {
-            throw new Error(
-              "Network response was not ok: " + response.statusText,
-            );
-          }
+                if (!response.ok) {
+                  throw new Error(
+                    "Network response was not ok: " + response.statusText,
+                  );
+                }
 
-          const data = await response.json();
-          console.log("Successfully sent to webhook:", data);
-        } catch (error) {
-          console.error("Error sending to webhook:", error);
-        }
-      }
+                const data = await response.json();
+                console.log("Successfully sent to webhook:", data);
+              } catch (error) {
+                console.error("Error sending to webhook:", error);
+              }
+            }
     </script>
   </body>
 </html>
